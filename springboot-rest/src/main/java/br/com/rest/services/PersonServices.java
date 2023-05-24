@@ -20,7 +20,7 @@ public class PersonServices {
         Person person = new Person();
         person.setId(counter.incrementAndGet());
         person.setFirstName("Person name " + i);
-        person.setLastnName("Last name " + i);
+        person.setLastName("Last name " + i);
         person.setAddress("Some address in brazil " + i);
         person.setGender("Male");
         return person;
@@ -30,7 +30,7 @@ public class PersonServices {
         Person person = new Person();
         person.setId(counter.incrementAndGet());
         person.setFirstName("Wesley");
-        person.setLastnName("Lira");
+        person.setLastName("Lira");
         person.setAddress("Brasília - DF");
         person.setGender("Male");
         return person;

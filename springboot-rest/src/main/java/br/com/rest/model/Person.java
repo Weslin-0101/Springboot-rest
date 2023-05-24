@@ -9,7 +9,7 @@ public class Person implements Serializable {
 
     private Long id;
     private String firstName;
-    private String lastnName;
+    private String lastName;
     private String address;
     private String gender;
 
@@ -31,12 +31,12 @@ public class Person implements Serializable {
         this.firstName = firstName;
     }
 
-    public String getLastnName() {
-        return lastnName;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setLastnName(String lastnName) {
-        this.lastnName = lastnName;
+    public void setLastName(String lastnName) {
+        this.lastName = lastnName;
     }
 
     public String getAddress() {
@@ -60,11 +60,11 @@ public class Person implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Person person = (Person) o;
-        return Objects.equals(id, person.id) && Objects.equals(firstName, person.firstName) && Objects.equals(lastnName, person.lastnName) && Objects.equals(address, person.address) && Objects.equals(gender, person.gender);
+        return Objects.equals(id, person.id) && Objects.equals(firstName, person.firstName) && Objects.equals(lastName, person.lastName) && Objects.equals(address, person.address) && Objects.equals(gender, person.gender);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastnName, address, gender);
+        return Objects.hash(id, firstName, lastName, address, gender);
     }
 }
