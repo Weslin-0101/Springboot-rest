@@ -4,6 +4,7 @@ import br.com.rest.model.Person;
 import br.com.rest.services.PersonServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,19 +16,18 @@ public class PersonController {
     @Autowired
     private PersonServices service;
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Person findById (@PathVariable(value = "id") Long id) throws Exception {
         return service.findById(id);
     }
 
-    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Person> findAll () throws Exception {
         return service.findAll();
     }
 
-    @RequestMapping(
+    @PostMapping(
             value = "/createPerson",
-            method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
@@ -35,8 +35,7 @@ public class PersonController {
         return service.createPerson(person);
     }
 
-    @RequestMapping(
-            method = RequestMethod.PUT,
+    @PostMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
@@ -44,10 +43,9 @@ public class PersonController {
         return service.updatePerson(person);
     }
 
-    @RequestMapping(
-            method = RequestMethod.DELETE
-    )
-    public void delete (@PathVariable (value = "id") Long id) throws Exception {
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<?> delete (@PathVariable (value = "id") Long id) throws Exception {
         service.deletePerson(id);
+        return ResponseEntity.noContent().build();
     }
 }
