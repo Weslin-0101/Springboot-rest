@@ -1,5 +1,7 @@
 package br.com.rest.services;
 
+import br.com.rest.data.vo.v1.PersonVO;
+import br.com.rest.mapper.ModelMapperAdapter;
 import br.com.rest.model.Person;
 import br.com.rest.repositories.PersonRepository;
 import expections.ResourceNotFoundException;
@@ -18,40 +20,45 @@ public class PersonServices {
     @Autowired
     PersonRepository personRepository;
 
-    public Person findById(Long id) {
+    public PersonVO findById(Long id) {
         logger.info("Finding one person!");
 
-        return personRepository.findById(id)
+        var entity = personRepository.findById(id)
                 .orElseThrow(() -> new ResourceAccessException("No records found for this ID"));
+
+        return ModelMapperAdapter.parseObject(entity, PersonVO.class);
     }
 
-    public List<Person> findAll() {
+    public List<PersonVO> findAll() {
         logger.info("Finding all people");
-        return personRepository.findAll();
+        return ModelMapperAdapter.parseListObject(personRepository.findAll(), PersonVO.class);
     }
 
-    public Person createPerson(Person person) {
+    public PersonVO createPerson(PersonVO person) {
         logger.info("Creating a person");
-        return personRepository.save(person);
+
+        var entity = ModelMapperAdapter.parseObject(person, Person.class);
+
+        return ModelMapperAdapter.parseObject(personRepository.save(entity), PersonVO.class);
     }
 
-    public Person updatePerson(Person person) {
+    public PersonVO updatePerson(PersonVO person) {
         logger.info("Creating a person");
 
-        Person entity = personRepository.findById(person.getId())
+        var entity = personRepository.findById(person.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
         entity.setFirstName(person.getFirstName());
         entity.setLastName(person.getLastName());
         entity.setAddress(person.getAddress());
         entity.setGender(person.getGender());
 
-        return personRepository.save(person);
+        return ModelMapperAdapter.parseObject(personRepository.save(entity), PersonVO.class);
     }
 
     public void deletePerson(Long id) {
         logger.info("Deleting a person");
 
-        Person entity = personRepository.findById(id)
+        var entity = personRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
         personRepository.delete(entity);
     }
