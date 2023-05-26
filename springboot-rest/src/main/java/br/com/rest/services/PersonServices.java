@@ -3,6 +3,7 @@ package br.com.rest.services;
 import br.com.rest.data.vo.v1.PersonVO;
 import br.com.rest.data.vo.v2.PersonVOV2;
 import br.com.rest.mapper.ModelMapperAdapter;
+import br.com.rest.mapper.custom.PersonMapper;
 import br.com.rest.model.Person;
 import br.com.rest.repositories.PersonRepository;
 import expections.ResourceNotFoundException;
@@ -21,6 +22,9 @@ public class PersonServices {
     @Autowired
     PersonRepository personRepository;
 
+    @Autowired
+    PersonMapper mapper;
+
     public PersonVO findById(Long id) {
         logger.info("Finding one person!");
 
@@ -37,7 +41,6 @@ public class PersonServices {
 
     public PersonVO createPerson(PersonVO person) {
         logger.info("Creating a person");
-
         var entity = ModelMapperAdapter.parseObject(person, Person.class);
 
         return ModelMapperAdapter.parseObject(personRepository.save(entity), PersonVO.class);
@@ -45,15 +48,13 @@ public class PersonServices {
 
     public PersonVOV2 createPersonV2(PersonVOV2 person) {
         logger.info("Creating a person");
+        var entity = mapper.convertVOToEntity(person);
 
-        var entity = ModelMapperAdapter.parseObject(person, Person.class);
-
-        return ModelMapperAdapter.parseObject(personRepository.save(entity), PersonVOV2.class);
+        return mapper.convertEntityToVO(personRepository.save(entity));
     }
 
     public PersonVO updatePerson(PersonVO person) {
         logger.info("Creating a person");
-
         var entity = personRepository.findById(person.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
         entity.setFirstName(person.getFirstName());
@@ -66,7 +67,6 @@ public class PersonServices {
 
     public void deletePerson(Long id) {
         logger.info("Deleting a person");
-
         var entity = personRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
         personRepository.delete(entity);
