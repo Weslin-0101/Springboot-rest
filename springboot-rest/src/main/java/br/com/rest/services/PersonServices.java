@@ -1,6 +1,7 @@
 package br.com.rest.services;
 
 import br.com.rest.data.vo.v1.PersonVO;
+import br.com.rest.data.vo.v2.PersonVOV2;
 import br.com.rest.mapper.ModelMapperAdapter;
 import br.com.rest.model.Person;
 import br.com.rest.repositories.PersonRepository;
@@ -40,6 +41,14 @@ public class PersonServices {
         var entity = ModelMapperAdapter.parseObject(person, Person.class);
 
         return ModelMapperAdapter.parseObject(personRepository.save(entity), PersonVO.class);
+    }
+
+    public PersonVOV2 createPersonV2(PersonVOV2 person) {
+        logger.info("Creating a person");
+
+        var entity = ModelMapperAdapter.parseObject(person, Person.class);
+
+        return ModelMapperAdapter.parseObject(personRepository.save(entity), PersonVOV2.class);
     }
 
     public PersonVO updatePerson(PersonVO person) {

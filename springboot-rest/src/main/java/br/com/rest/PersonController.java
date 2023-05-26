@@ -1,6 +1,7 @@
 package br.com.rest;
 
 import br.com.rest.data.vo.v1.PersonVO;
+import br.com.rest.data.vo.v2.PersonVOV2;
 import br.com.rest.services.PersonServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -27,12 +28,21 @@ public class PersonController {
     }
 
     @PostMapping(
-            value = "/createPerson",
+            value = "/v1/createPerson",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public PersonVO create (@RequestBody PersonVO person) throws Exception {
         return service.createPerson(person);
+    }
+
+    @PostMapping(
+            value = "/v2/createPerson",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public PersonVOV2 createV2 (@RequestBody PersonVOV2 person) throws Exception {
+        return service.createPersonV2(person);
     }
 
     @PostMapping(
