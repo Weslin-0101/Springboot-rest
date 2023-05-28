@@ -1,12 +1,22 @@
 package br.com.rest.data.vo.v1;
 
+import br.com.rest.model.Person;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.RepresentationModel;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class PersonVO implements Serializable {
+@JsonPropertyOrder({"id", "firstName", "lastName", "address", "gender"})
+public class PersonVO extends RepresentationModel<PersonVO> implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty("id")
     private Long id;
     private String firstName;
     private String lastName;
