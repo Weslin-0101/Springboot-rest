@@ -1,6 +1,6 @@
 package br.com.rest.services;
 
-import br.com.rest.PersonController;
+import br.com.rest.controllers.PersonController;
 import br.com.rest.data.vo.v1.PersonVO;
 import br.com.rest.data.vo.v2.PersonVOV2;
 import br.com.rest.mapper.ModelMapperAdapter;
