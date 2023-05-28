@@ -7,6 +7,7 @@ import br.com.rest.mapper.ModelMapperAdapter;
 import br.com.rest.mapper.custom.PersonMapper;
 import br.com.rest.model.Person;
 import br.com.rest.repositories.PersonRepository;
+import expections.RequiredObjectsIsNullException;
 import expections.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -55,6 +56,8 @@ public class PersonServices {
     }
 
     public PersonVO createPerson(PersonVO person) throws Exception {
+        if (person == null) throw new RequiredObjectsIsNullException();
+
         logger.info("Creating a person");
         var entity = ModelMapperAdapter.parseObject(person, Person.class);
         var vo = ModelMapperAdapter.parseObject(personRepository.save(entity), PersonVO.class);
@@ -71,6 +74,8 @@ public class PersonServices {
     }
 
     public PersonVO updatePerson(PersonVO person) throws Exception {
+        if (person == null) throw new RequiredObjectsIsNullException();
+
         logger.info("Creating a person");
         var entity = personRepository.findById(person.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
