@@ -1,16 +1,26 @@
 package br.com.rest.controllers;
 
 import br.com.rest.data.vo.v1.security.AccountCredentialsVO;
+import br.com.rest.repositories.UserRepository;
+import br.com.rest.securityJwt.JwtTokenProvider;
 import br.com.rest.services.AuthServices;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Tag(name = "Authentication Endpoint")
 @RestController
@@ -18,23 +28,45 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     @Autowired
-    AuthServices authServices;
+    AuthenticationManager authenticationManager;
+
+    @Autowired
+    JwtTokenProvider tokenProvider;
+
+    @Autowired
+    UserRepository userRepository;
 
     @SuppressWarnings("rawtypes")
     @Operation(summary = "Authenticate a user by credentials and returns a token")
-    @PostMapping(value = "/signin")
+    @PostMapping(
+            value = "/signin",
+            produces = {"application/json", "application/xml", "application/x-yaml"},
+            consumes = {"application/json", "application/xml", "application/x-yaml"}
+    )
     public ResponseEntity signin(@RequestBody AccountCredentialsVO data) {
-        if (checkIfParamsIsNoTnull(data)) return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid client request");
+        try {
+            var username = data.getUsername();
+            var password = data.getPassword();
 
-        var token = authServices.signin(data);
-        if (token == null) return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid client request");
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
-        return token;
-    }
+            var user = userRepository.findByUsername(username);
 
-    private boolean checkIfParamsIsNoTnull(AccountCredentialsVO data) {
-        return data == null || data.getUsername() == null
-                || data.getUsername().isBlank() || data.getPassword() == null
-                || data.getPassword().isBlank();
+            var token = "";
+
+            if (user != null) {
+                token = tokenProvider.createAccessToken(username, user.getRoles());
+            } else {
+                throw new UsernameNotFoundException("Username " + username + " not found");
+            }
+
+            Map<Object, Object> model = new HashMap<>();
+            model.put("username", username);
+            model.put("token", token);
+
+            return ResponseEntity.ok(model);
+        } catch (AuthenticationException e) {
+            throw new BadCredentialsException("Invalid username/password supplied");
+        }
     }
 }
