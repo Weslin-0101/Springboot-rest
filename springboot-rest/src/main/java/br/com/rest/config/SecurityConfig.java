@@ -12,7 +12,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+<<<<<<< HEAD
 import org.springframework.security.web.SecurityFilterChain;
+=======
+>>>>>>> 15334de29d1673d373376503321a0c4ee0075b1b
 
 @EnableWebSecurity
 @Configuration
