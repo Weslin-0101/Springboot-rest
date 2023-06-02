@@ -9,6 +9,7 @@ import br.com.rest.model.Person;
 import br.com.rest.repositories.PersonRepository;
 import expections.RequiredObjectsIsNullException;
 import expections.ResourceNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -86,6 +87,20 @@ public class PersonServices {
 
         var vo = ModelMapperAdapter.parseObject(personRepository.save(entity), PersonVO.class);
         vo.add(linkTo(methodOn(PersonController.class).findById(vo.getId())).withSelfRel());
+
+        return vo;
+    }
+
+    @Transactional
+    public PersonVO disablePerson(Long id) throws Exception {
+        logger.info("Disabling one person!");
+
+        personRepository.disablePerson(id);
+        var entity = personRepository.findById(id)
+                .orElseThrow(() -> new ResourceAccessException("No records found for this ID"));
+
+        PersonVO vo = ModelMapperAdapter.parseObject(entity, PersonVO.class);
+        vo.add(linkTo(methodOn(PersonController.class).findById(id)).withSelfRel());
 
         return vo;
     }
