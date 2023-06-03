@@ -9,10 +9,14 @@ import br.com.rest.repositories.BookRepository;
 import expections.RequiredObjectsIsNullException;
 import expections.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -25,6 +29,9 @@ public class BookServices {
 
     @Autowired
     BookRepository bookRepository;
+
+    @Autowired
+    PagedResourcesAssembler<BookVO> assembler;
 
     @Autowired
     PersonMapper mapper;
@@ -41,18 +48,26 @@ public class BookServices {
         return vo;
     }
 
-    public List<BookVO> findAll() {
+    public PagedModel<EntityModel<BookVO>> findAll(Pageable pageable) throws Exception {
         logger.info("Finding all people");
-        var books = ModelMapperAdapter.parseListObject(bookRepository.findAll(), BookVO.class);
-        books
-                .forEach(p -> {
-                    try {
-                        p.add(linkTo(methodOn(BookController.class).findById(p.getId())).withSelfRel());
-                    } catch (Exception e) {
-                        throw new ResourceNotFoundException("No records found");
-                    }
-                });
-        return books;
+
+        var bookPage = bookRepository.findAll(pageable);
+        var bookVOPage = bookPage.map(p -> ModelMapperAdapter.parseObject(p, BookVO.class));
+        bookVOPage.map(p -> {
+            try {
+                return p.add(linkTo(methodOn(BookController.class).findById(p.getId())).withSelfRel());
+            } catch (Exception e) {
+                throw new ResourceNotFoundException("No records found");
+            }
+        });
+
+        Link link = linkTo(methodOn(BookController.class)
+                .findAll(pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        "asc"))
+                .withSelfRel();
+
+        return assembler.toModel(bookVOPage, link);
     }
 
     public BookVO createBook(BookVO book) throws Exception {
