@@ -56,39 +56,6 @@ class PersonServicesTest {
         assertEquals("Female", result.getGender());
     }
 
-    /*
-    @Test
-    void findAll() {
-        List<Person> mockListPerson = input.mockEntityList();
-
-        when(repository.findAll()).thenReturn(mockListPerson);
-        var peopleList = services.findAll();
-
-        assertNotNull(peopleList);
-        assertEquals(5, peopleList.size());
-
-        var person1 = peopleList.get(1);
-        assertNotNull(person1);
-        assertNotNull(person1.getId());
-        assertNotNull(person1.getLinks());
-        assertTrue(person1.toString().contains("links: [</api/person/v1/1>;rel=\"self\"]"));
-        assertEquals("Address Test1", person1.getAddress());
-        assertEquals("First Name Test1", person1.getFirstName());
-        assertEquals("Last Name Test1", person1.getLastName());
-        assertEquals("Female", person1.getGender());
-
-        var person4 = peopleList.get(4);
-        assertNotNull(person4);
-        assertNotNull(person4.getId());
-        assertNotNull(person4.getLinks());
-        assertTrue(person4.toString().contains("links: [</api/person/v1/4>;rel=\"self\"]"));
-        assertEquals("Address Test4", person4.getAddress());
-        assertEquals("First Name Test4", person4.getFirstName());
-        assertEquals("Last Name Test4", person4.getLastName());
-        assertEquals("Male", person4.getGender());
-    }
-    */
-
     @Test
     void createPerson() throws Exception {
         Person mockPerson = input.mockEntity(1);
