@@ -14,13 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 @Service
@@ -30,6 +31,9 @@ public class PersonServices {
 
     @Autowired
     PersonRepository personRepository;
+
+    @Autowired
+    PagedResourcesAssembler<PersonVO> assembler;
 
     @Autowired
     PersonMapper mapper;
@@ -46,7 +50,7 @@ public class PersonServices {
         return vo;
     }
 
-    public Page<PersonVO> findAll(Pageable pageable) {
+    public PagedModel<EntityModel<PersonVO>> findAll(Pageable pageable) throws Exception {
         logger.info("Finding all people");
 
         var personPage = personRepository.findAll(pageable);
@@ -59,7 +63,12 @@ public class PersonServices {
             }
         });
 
-        return personVOPage;
+        Link link = linkTo(methodOn(PersonController.class)
+                .findAll(pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        "asc")).withSelfRel();
+
+        return assembler.toModel(personVOPage, link);
     }
 
     public PersonVO createPerson(PersonVO person) throws Exception {
