@@ -10,10 +10,12 @@ import br.com.rest.repositories.PersonRepository;
 import expections.RequiredObjectsIsNullException;
 import expections.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
@@ -38,6 +40,25 @@ public class PersonServices {
     @Autowired
     PersonMapper mapper;
 
+    @NotNull
+    private PagedModel<EntityModel<PersonVO>> getEntityModels(Pageable pageable, Page<Person> personPage) throws Exception {
+        var personVOPage = personPage.map(p -> ModelMapperAdapter.parseObject(p, PersonVO.class));
+        personVOPage.map(p -> {
+            try {
+                return p.add(linkTo(methodOn(PersonController.class).findById(p.getId())).withSelfRel());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        Link link = linkTo(methodOn(PersonController.class)
+                .findAll(pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        "asc")).withSelfRel();
+
+        return assembler.toModel(personVOPage, link);
+    }
+
     public PersonVO findById(Long id) throws Exception {
         logger.info("Finding one person!");
 
@@ -54,21 +75,14 @@ public class PersonServices {
         logger.info("Finding all people");
 
         var personPage = personRepository.findAll(pageable);
-        var personVOPage = personPage.map(p -> ModelMapperAdapter.parseObject(p, PersonVO.class));
-        personVOPage.map(p -> {
-            try {
-                return p.add(linkTo(methodOn(PersonController.class).findById(p.getId())).withSelfRel());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+        return getEntityModels(pageable, personPage);
+    }
 
-        Link link = linkTo(methodOn(PersonController.class)
-                .findAll(pageable.getPageNumber(),
-                        pageable.getPageSize(),
-                        "asc")).withSelfRel();
+    public PagedModel<EntityModel<PersonVO>> findPersonByName(String fistName, Pageable pageable) throws Exception {
+        logger.info("Finding all people");
 
-        return assembler.toModel(personVOPage, link);
+        var personPage = personRepository.findPersonByName(fistName, pageable);
+        return getEntityModels(pageable, personPage);
     }
 
     public PersonVO createPerson(PersonVO person) throws Exception {
