@@ -1,10 +1,13 @@
 package br.com.rest.integrationTest.controller;
 
 import br.com.rest.configs.TestConfigs;
+import br.com.rest.data.vo.v1.PersonVO;
 import br.com.rest.integrationTest.testcontainers.AbstractIntegrationTest;
 import br.com.rest.integrationTest.vo.PersonTestVO;
+import br.com.rest.integrationTest.vo.wrappers.WrapperPersonVO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
@@ -75,6 +78,66 @@ public class PersonControllerJsonTest extends AbstractIntegrationTest {
         assertEquals("Lira", createPersonTest.getLastName());
         assertEquals("Brasília - DF", createPersonTest.getAddress());
         assertEquals("Male", createPersonTest.getGender());
+    }
+
+    @Test
+    @Order(2)
+    public void testFindAll() throws JsonMappingException, JsonProcessingException {
+        var content = given().spec(specification)
+                .contentType(TestConfigs.CONTENT_TYPE_JSON)
+                .queryParams("page", 3, "size", 10, "direction", "asc")
+                .when()
+                .get()
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .asString();
+
+        WrapperPersonVO wrapperPersonVO = objectMapper.readValue(content, WrapperPersonVO.class);
+        var people = wrapperPersonVO.getEmbedded().getPersonTestVOList();
+
+        PersonTestVO foundPersonOne = people.get(0);
+
+        assertNotNull(foundPersonOne);
+        assertNotNull(foundPersonOne.getId());
+        assertNotNull(foundPersonOne.getFirstName());
+        assertNotNull(foundPersonOne.getLastName());
+        assertNotNull(foundPersonOne.getAddress());
+        assertNotNull(foundPersonOne.getGender());
+
+        assertTrue(foundPersonOne.getEnabled());
+    }
+
+    @Test
+    @Order(3)
+    public void testFindByName() throws JsonMappingException, JsonProcessingException {
+        var content = given().spec(specification)
+                .contentType(TestConfigs.CONTENT_TYPE_JSON)
+                .accept(TestConfigs.CONTENT_TYPE_JSON)
+                .pathParam("firstName", person.getFirstName())
+                .queryParams("page", 0, "size", 6, "direction", "asc")
+                    .when()
+                    .get("/findPersonByName/{firstName}")
+                .then()
+                    .statusCode(200)
+                        .extract()
+                        .body()
+                            .asString();
+
+        WrapperPersonVO wrapperPersonVO = objectMapper.readValue(content, WrapperPersonVO.class);
+        var people = wrapperPersonVO.getEmbedded().getPersonTestVOList();
+
+        PersonTestVO foundPersonOne = people.get(0);
+
+        assertNotNull(foundPersonOne);
+        assertNotNull(foundPersonOne.getId());
+        assertNotNull(foundPersonOne.getFirstName());
+        assertNotNull(foundPersonOne.getLastName());
+        assertNotNull(foundPersonOne.getAddress());
+        assertNotNull(foundPersonOne.getGender());
+
+        assertTrue(foundPersonOne.getEnabled());
     }
 
     private void mockPerson() {
