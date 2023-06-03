@@ -13,6 +13,10 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
@@ -42,18 +46,20 @@ public class PersonServices {
         return vo;
     }
 
-    public List<PersonVO> findAll() {
+    public Page<PersonVO> findAll(Pageable pageable) {
         logger.info("Finding all people");
-        var persons = ModelMapperAdapter.parseListObject(personRepository.findAll(), PersonVO.class);
-        persons
-                .forEach(p -> {
-                    try {
-                        p.add(linkTo(methodOn(PersonController.class).findById(p.getId())).withSelfRel());
-                    } catch (Exception e) {
-                        throw new ResourceNotFoundException("No records found");
-                    }
-                });
-        return persons;
+
+        var personPage = personRepository.findAll(pageable);
+        var personVOPage = personPage.map(p -> ModelMapperAdapter.parseObject(p, PersonVO.class));
+        personVOPage.map(p -> {
+            try {
+                return p.add(linkTo(methodOn(PersonController.class).findById(p.getId())).withSelfRel());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        return personVOPage;
     }
 
     public PersonVO createPerson(PersonVO person) throws Exception {

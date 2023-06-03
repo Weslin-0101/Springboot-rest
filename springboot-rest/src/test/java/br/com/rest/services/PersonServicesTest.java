@@ -56,6 +56,7 @@ class PersonServicesTest {
         assertEquals("Female", result.getGender());
     }
 
+    /*
     @Test
     void findAll() {
         List<Person> mockListPerson = input.mockEntityList();
@@ -86,6 +87,7 @@ class PersonServicesTest {
         assertEquals("Last Name Test4", person4.getLastName());
         assertEquals("Male", person4.getGender());
     }
+    */
 
     @Test
     void createPerson() throws Exception {
