@@ -1,7 +1,7 @@
 cors:
     originPatterns: http://localhost:8080
 file:
-  upload-dir: /home/runner/work/springboot-rest/UploadDir
+  upload-dir: /home/runner/work/springboot-rest/public
 server:
   port: 8888
 security:
