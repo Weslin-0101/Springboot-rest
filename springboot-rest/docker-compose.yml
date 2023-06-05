@@ -1,4 +1,8 @@
 version: '3'
+networks:
+    springboot-network:
+        driver: bridge
+
 services:
   db:
     container_name: springboot-postgres
@@ -10,3 +14,21 @@ services:
       - POSTGRESQL_USERNAME=postgresql
       - POSTGRESQL_PASSWORD=desafio
       - POSTGRESQL_DATABASE=springbootdb
+    networks:
+      - springboot-network
+
+  rest-springboot:
+    container_name: springboot-rest
+    image: springboot-rest:latest
+    build: .
+    working_dir: /app
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/springbootdb
+      - SPRING_DATASOURCE_USERNAME=postgresql
+      - SPRING_DATASOURCE_PASSWORD=desafio
+    ports:
+      - "80:80"
+    networks:
+      - springboot-network
+    depends_on:
+      - db
