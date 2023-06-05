@@ -18,6 +18,8 @@
         <springdoc.version>2.0.2</springdoc.version>
         <testcontainers.version>1.16.3</testcontainers.version>
         <java-jwt.version>3.18.3</java-jwt.version>
+        <marven.compiler.source>17</marven.compiler.source>
+        <marven.compiler.target>17</marven.compiler.target>
     </properties>
     <dependencies>
         <dependency>
