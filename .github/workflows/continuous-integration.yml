@@ -27,11 +27,11 @@ jobs:
         cache: maven
         
     - name: Build Application JAR
-      working-directory: ./springboot-rest
+      working-directory: ./Springboot-rest/springboot-rest
       run: mvn clean package
       
     - name: Docker Compose Build
-      working-directory: ./springboot-rest
+      working-directory: ./Springboot-rest/springboot-rest
       run: docker-compose build -skipTests
     
     - name: Push to Docker Hub

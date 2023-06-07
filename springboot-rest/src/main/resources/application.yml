@@ -12,9 +12,9 @@ security:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5440/springbootdb
-    username: postgresql
-    password: desafio
+    url: jdbc:postgresql://{jogaOEndpointDoBancoAWS}:5440/springbootdb-aws
+    username: { awsDatabaseUsername }
+    password: { awsDatabasePassword }
   jpa:
     hibernate:
       ddl-auto: none
